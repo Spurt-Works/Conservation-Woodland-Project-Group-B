@@ -1,3 +1,9 @@
+<!--
+  The purpose of this file is to provide a webpage containing the fruit catching game.
+
+  Authors: Daniel Amirault, Emmet Dixon
+-->
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -36,7 +42,7 @@
     <title>Saint Margaret's Bay Store</title>
   </head>
 
-  <body>
+  <body onload="moveBasket()">
     <header>
       <div class="header-container">
         <div class="org-name">
@@ -98,8 +104,9 @@
           <!-- On click change html to allow fullscreen-->
           <canvas id="gameCanvas"></canvas>
 
-          
+          <div id="basket"></div>
 
+          <script type="text/javascript" src="game.js"></script>
           <script type="module" src="main.js"></script>
         </div>
       </div>
