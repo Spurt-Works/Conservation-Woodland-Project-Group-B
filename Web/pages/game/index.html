@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=
+    , initial-scale=1.0"
+    />
+
+    <!--Linking the css files for styling-->
+    <link rel="stylesheet" href="../../styles/body.css" />
+    <link rel="stylesheet" href="../../styles/nav.css" />
+    <link rel="stylesheet" href="../../styles/header.css" />
+    <link rel="stylesheet" href="../../styles/footer.css" />
+    <link rel="stylesheet" href="../../styles/index.css" />
+    <link rel="stylesheet" href="../../styles/estore.css" />
+    <!--Linking the game's css files for styling-->
+    <link rel="stylesheet" href="style.css" />
+
+    <!--Linking a custom font-->
+    <link
+      rel="stylesheet"
+      href="path/to/font-awesome/css/font-awesome.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+
+    <title>Saint Margaret's Bay Store</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="header-container">
+        <div class="org-name">
+          <!--Links back to homepage if clicked-->
+          <a class="org-logo" href="../../index.html"></a>
+          <!--Links back to homepage if clicked-->
+          <p>
+            <a href="../../index.html"
+              >French Village Forest <b>Conservation</b></a
+            >
+          </p>
+        </div>
+        <div class="menu-btn">
+          <div class="menu-btn_burger"></div>
+          <div id="nav-bar" class="nav-bar">
+            <nav>
+              <ul>
+                <li><a href="../../pages/about/about.html">About</a></li>
+                <li>
+                  <a href="../../pages/ecosystem/ecosystem.html">Ecosystem</a>
+                </li>
+                <li><a href="../../pages/burial/burial.html">Burial</a></li>
+                <li><a href="../quiz/game.php">Quiz</a></li>
+                <li>
+                  <a href="../../pages/e-commerce/estore.html">Marketplace</a>
+                </li>
+                <li><a href="../../pages/newmap/client/index.html">Map</a></li>
+                <li>
+                  <a href="../../pages/newmap/client/conservation.html"
+                    >Gallery</a
+                  >
+                </li>
+                <li>
+                  <a href="../../pages/newmap/admin/index.html">Photo Upload</a>
+                </li>
+                <li><a href="../../pages/game/index.html">Game</a></li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </header>
+    <!--Main content div for all page content for responsive design-->
+    <div id="main-content" class="main-content main-container">
+      <div class="game-about">
+        <div class="gameabout-title">
+          <h1 class="main-container">GAME</h1>
+        </div>
+        <div class="game-text">
+          <p class="main-container">
+            <b>French Village Forest Conservation</b> is home to a diverse
+            ecosystem. With historic and interesting flora and fauna, there is
+            something to see for everyone. Below is a game to learn more about
+            the conservation site!
+          </p>
+        </div>
+        <div id="gameContainer">
+          <button id="fullscreen-button">Toggle fullscreen</button>
+          <!-- On click change html to allow fullscreen-->
+          <canvas id="gameCanvas"></canvas>
+
+          
+
+          <script type="module" src="main.js"></script>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

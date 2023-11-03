@@ -1,0 +1,110 @@
+<!-- 
+	This is the main file for the French Village Website and Geolocation App.
+This file would be the main page for a website if there were more pages, with
+separate functions being taken over by sub-pages. It currently contains:
+Google Map API centered on French Village conservation site
+Geolocation information for the user
+Images of various locations, to be replaced with photos of the site
+Audio framework to allow for easy implementation of the audio files
+
+Work done by: Fran�ois Couture, Jalen Pinder, Mohamed Aly, and Alexander Mack
+-->
+<!DOCTYPE html>
+<html lang="en">
+    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- stylesheets -->
+    <link rel="stylesheet" href="FV.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Domine&display=swap" rel="stylesheet">
+    <!--Requests and Imports the Bootstrap Script && Kit-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <!-- APIs -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5dVDBNoLYYa6wpRQNuAbDjLcifUUUENw&callback=initMap"></script>
+    <!-- javascript files -->
+    <script src="geolocationScript_v2.js" type="text/javascript"></script>
+    <script src="mapScript.js"></script>
+    <!--Requests and Imports the Bootstrap Script && Kit-->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <!-- website title -->
+    <title>French Village</title>
+
+
+        <!--Linking the css files for styling-->
+        <link rel="stylesheet" href="../../styles/body.css" />
+        <link rel="stylesheet" href="../../styles/nav.css" />
+        <link rel="stylesheet" href="../../styles/header.css" />
+        <link rel="stylesheet" href="../../styles/footer.css" />
+        <link rel="stylesheet" href="../../styles/index.css" />
+        <link rel="stylesheet" href="../../styles/estore.css" />
+</head>
+
+<body>
+
+    <!-- Header and logo -->
+    <header>
+        <div class="header-container">
+          <div class="org-name">
+            <!--Links back to homepage if clicked-->
+            <a class="org-logo" href="../../index.html"></a>
+            <!--Links back to homepage if clicked-->
+            <p>
+              <a href="../../index.html">French Village Forest <b>Conservation</b></a>
+            </p>
+          </div>
+          <div class="menu-btn">
+            <div class="menu-btn_burger"></div>
+            <div id="nav-bar" class="nav-bar">
+              <nav>
+                <ul>
+                  <!--Links to alternative pages in the navbar-->
+  
+                  <li><a href="../../pages/about/about.html">About</a></li>
+                  <li><a href="../../pages/ecosystem/ecosystem.html">Ecosystem</a></li>
+                  <li><a href="../../pages/burial/burial.html">Burial</a></li>
+                  <li><a href="../quiz/game.php">Quiz</a></li>
+                  <li><a href="../../pages/e-commerce/estore.html">Marketplace</a></li>
+                  <li><a href="../../pages/newmap/client/index.html">Map</a></li>
+                  <li><a href="../../pages/newmap/client/conservation.html">Gallery</a></li>
+                  <li><a href="../../pages/newmap/admin/index.html">Photo Upload</a></li>
+                  <li><a href="../../pages/game/index.html">Game</a></li>
+                </ul>
+  
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </header>
+
+    <main class="main-container">
+        <!-- Map Section -->
+        <!-- Google map API gets appended to the id "map" -->
+        <div id="map">
+            <h2 data-aos="fade up">Map</h2>
+            <!-- <img src="map.jpeg" alt="French Village Map"> Add a general image of the map -->
+        </div>
+
+        <!-- geolocation data section -->
+        <div id="location">
+            <div id="geo"></div>
+            <div id="POI"><br></div>
+            <div id="nextPOI"><br></div>
+            <div id="directions"><br></div>
+            <div id="controls"><br></div>
+            <div><input type="button" id="destButton" value="Get Directions" /></div>
+
+            <div id="arrival" style="display:none">
+
+            </div>
+        </div>
+    </main>
+
+</body>
+
+</html>
