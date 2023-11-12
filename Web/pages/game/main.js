@@ -1,6 +1,6 @@
 //   Purpose: Main driver for the game
 //   Authors:
-//   Daniel Amirault  - objects falling
+//   Daniel Amirault  - objects falling, title screen
 //   Emmet Dixon -
 
 /*Description:
@@ -44,6 +44,106 @@ function moveBasket() {
     // Update the basket's left position to follow the mouse
     basket.style.left = mouseX + "px";
   });
+}
+
+/*
+  This function fixes the bluriness of canvas elements due to upscaling to browser size.
+
+  We did not write this, full credit goes this article: 
+  https://web.dev/articles/canvas-hidipi
+
+   Author: Paul Lewis, implented into loadTitleScreen() Code by Daniel
+*/
+function setCanvas(canvas) {
+  // Get the device pixel ratio, falling back to 1.
+  var dpr = window.devicePixelRatio || 1;
+  // Get the size of the canvas in CSS pixels.
+  var rect = canvas.getBoundingClientRect();
+  // Give the canvas pixel dimensions of their CSS
+  // size * the device pixel ratio.
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  var ctx = canvas.getContext("2d");
+  // Scale all drawing operations by the dpr, so you
+  // don't have to worry about the difference.
+  ctx.scale(dpr, dpr);
+  return ctx;
+}
+
+/*
+  This function displays a title screen with text. On click
+  clear the screen and show the rule screen.
+
+   Author: Daniel 
+*/
+function loadTitleScreen() {
+  setCanvas(canvas);
+  ctx.font = "50px Jazz LET fantasy";
+  ctx.fillStyle = "black";
+  ctx.fillText("Game Title", 70, 50);
+  ctx.font = "10px Arial";
+  ctx.fillText("Game created by Daniel and Emmet", 70, 100);
+  canvas.addEventListener("click", loadRuleScreen);
+}
+
+/*
+  This function displays a rule screen with text and images. On click
+  clear the screen and begin the game loop.
+
+   Author: Daniel 
+*/
+function loadRuleScreen() {
+  canvas.removeEventListener("click", loadRuleScreen);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "black";
+  ctx.font = "20px Arial";
+
+  ctx.fillText("This is a yellow birch leaf:", 100, 100);
+  ctx.fillText("You should collect as many as possible!", 50, 250);
+  loadObjectRuleScreen("../../resources/image/gameAssets/leaf.png", 150, 120, 100, 100);
+  ctx.fillText("This is a hazlenut:", 450, 100);
+  ctx.fillText("These restore lives!", 450, 250);
+  loadObjectRuleScreen("../../resources/image/gameAssets/nut.png", 500, 120, 100, 100);
+  ctx.fillText("This is a rock:", 820, 100);
+  ctx.fillText("You should avoid these! They remove lives!", 700, 250);
+  loadObjectRuleScreen("../../resources/image/gameAssets/stone.png", 850, 130, 70, 70);
+  canvas.addEventListener("click", clickToStartGame);
+}
+
+/*
+  This function is based off the createObject() function.
+  Load and draw the object on the screen for the rule screen 
+  without movement and without the object being inserted into 
+  the objectStorage array.
+
+   Author: Daniel
+*/
+function loadObjectRuleScreen(src, x, y, width, height) {
+  const loadImage = new Image();
+  loadImage.src = src;
+
+  loadImage.onload = function () {
+    const object = {
+      x: x,
+      y: y,
+      image: loadImage,
+      width: width,
+      height: height,
+    };
+    drawObject(object);
+  };
+}
+
+/*
+  This function removes the listener for clicks to start the game.
+  Show the basket and begin the game loop.
+
+   Author: Daniel 
+*/
+function clickToStartGame() {
+  canvas.removeEventListener("click", clickToStartGame);
+  basket.style.display = "block";
+  gameLoop();
 }
 
 /*
@@ -111,26 +211,24 @@ function createRandomObject() {
       const objectImage = new Image();
       objectImage.src = "../../resources/image/gameAssets/nut.png"; //image held outside of pages/game/ path
 
-      createObject(objectImage, 20, 20, 1.25);
+      createObject(objectImage, 55, 55, 2.5);
     }
 
     if (spawnValue > 0.25 && spawnValue < stoneSpawnChance) {
       const objectImage = new Image();
       objectImage.src = "../../resources/image/gameAssets/stone.png";
 
-      createObject(objectImage, 10, 10, 1.5);
+      createObject(objectImage, 35, 35, 3);
     }
 
     if (spawnValue > stoneSpawnChance && spawnValue < 1) {
       const objectImage = new Image();
       objectImage.src = "../../resources/image/gameAssets/leaf.png";
 
-      createObject(objectImage, 25, 25, 1);
+      createObject(objectImage, 75, 75, 2);
     }
   }
 }
-
-
 
 /*
   This function is to prevent boilerplate code for setting the object parameters and handling
@@ -143,10 +241,10 @@ function createObject(objectImage, objectWidth, objectHeight, objectSpeed) {
   objectImage.onload = function () {
     const object = {
       x: Math.random() * (canvas.width - 20),
+      y: 0,
       image: objectImage,
       width: objectWidth,
       height: objectHeight,
-      y: 0,
       speed: objectSpeed,
     };
 
@@ -167,6 +265,7 @@ function fullScreen() {
    Author: Daniel
 */
 function gameLoop() {
+  //Update animation for next frame
   requestAnimationFrame(gameLoop);
 
   //Clear the entire gameCanvas of objects from previous sessions
@@ -192,11 +291,9 @@ function gameLoop() {
 
   //Math.random() generates numbers between 0-1, therefore spawnRate determines the chance that a new object is created
   if (Math.random() < spawnRate) {
-    console.log(Math.random());
     //The createRandomObject() pushes a new object into the objectStorageArray
     createRandomObject();
   }
 }
 
-//Starts the game loop
-gameLoop();
+loadTitleScreen();
