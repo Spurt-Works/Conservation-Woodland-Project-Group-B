@@ -1,12 +1,15 @@
 //   Purpose: Main driver for the game
 //   Authors:
-//   Daniel Amirault  - objects falling, title screen
+//   Daniel Amirault  - 
 //   Emmet Dixon -
 
 /*Description:
+
  */
 
 //Global variables//
+
+const lifeConstant = 3;
 
 //Array used to store created objects
 const objectStorage = [];
@@ -23,27 +26,70 @@ const spawnAmount = 4;
 */
 const spawnRate = 0.02;
 
+// Game variables
+let score = 0;
+let lives = lifeConstant;
+let squareCount = 0;
+
 //Select the gameCanvas, Canvas API
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// Get a reference to the basket element
-const basket = document.getElementById("basket");
+//Get left offset of gameCanvas from browser screen
+const leftOffset = canvas.getBoundingClientRect().left;
+
+// Get a reference to the basket with default values
+let basket = {
+  width: 50,
+  height: 50,
+  x: canvas.width / 2 - 25,
+  y: canvas.height - 50
+};
+
+//Get a reference to the score display
+const scoreDisplay = document.getElementById("score");
 
 /*
   This function moves the basket when the user moves their mouse.
+  Current width and height of canvas get passed in
 
-   Author: Emmet
+   Author: Emmet and Daniel
 */
-function moveBasket() {
+function moveBasket(canvasWidth, canvasHeight) {
   // Add an event listener to track mouse movement
   document.addEventListener("mousemove", (event) => {
     // Get the X-coordinate of the mouse pointer
     const mouseX = event.clientX;
 
+    //Lock the basket to be at the bottom of the canvas
+    basket.y = canvasHeight - basket.height;
     // Update the basket's left position to follow the mouse
-    basket.style.left = mouseX + "px";
+    basket.x = mouseX;
+
+    //Get boundary for left side of canvas
+    const leftBoundary = 0;
+
+    //Get boundary for right side of canvas (entire width of canvas minus the basket)
+    const rightBoundary = canvasWidth - basket.width;
+
+    //If the basket passes either boundary move it to the boundary
+    if (basket.x < leftBoundary) {
+      basket.x = leftBoundary;
+    } else if (basket.x > rightBoundary) {
+      basket.x = rightBoundary;
+    }
   });
+}
+
+/*
+  This function draws the basket onto the gameCanvas
+
+  TO BE IMPLENTED:
+  an actual image of a basket instead of just a beige box
+*/
+function drawBasket() {
+  ctx.fillStyle = "beige";
+  ctx.fillRect(basket.x, basket.y, basket.width, basket.height);
 }
 
 /*
@@ -63,10 +109,13 @@ function setCanvas(canvas) {
   // size * the device pixel ratio.
   canvas.width = rect.width * dpr;
   canvas.height = rect.height * dpr;
+  console.log(canvas.width);
+  console.log(canvas.height);
   var ctx = canvas.getContext("2d");
   // Scale all drawing operations by the dpr, so you
   // don't have to worry about the difference.
   ctx.scale(dpr, dpr);
+
   return ctx;
 }
 
@@ -74,10 +123,9 @@ function setCanvas(canvas) {
   This function displays a title screen with text. On click
   clear the screen and show the rule screen.
 
-   Author: Daniel 
+   TO BE IMPLENTED: position and add title to the game
 */
 function loadTitleScreen() {
-  setCanvas(canvas);
   ctx.font = "50px Jazz LET fantasy";
   ctx.fillStyle = "black";
   ctx.fillText("Game Title", 70, 50);
@@ -90,6 +138,8 @@ function loadTitleScreen() {
   This function displays a rule screen with text and images. On click
   clear the screen and begin the game loop.
 
+  TO BE IMPLENTED: fix position of text and images
+
    Author: Daniel 
 */
 function loadRuleScreen() {
@@ -101,12 +151,15 @@ function loadRuleScreen() {
   ctx.fillText("This is a yellow birch leaf:", 100, 100);
   ctx.fillText("You should collect as many as possible!", 50, 250);
   loadObjectRuleScreen("../../resources/image/gameAssets/leaf.png", 150, 120, 100, 100);
+
   ctx.fillText("This is a hazlenut:", 450, 100);
   ctx.fillText("These restore lives!", 450, 250);
   loadObjectRuleScreen("../../resources/image/gameAssets/nut.png", 500, 120, 100, 100);
+
   ctx.fillText("This is a rock:", 820, 100);
   ctx.fillText("You should avoid these! They remove lives!", 700, 250);
   loadObjectRuleScreen("../../resources/image/gameAssets/stone.png", 850, 130, 70, 70);
+
   canvas.addEventListener("click", clickToStartGame);
 }
 
@@ -142,8 +195,16 @@ function loadObjectRuleScreen(src, x, y, width, height) {
 */
 function clickToStartGame() {
   canvas.removeEventListener("click", clickToStartGame);
-  basket.style.display = "block";
   gameLoop();
+}
+
+/*
+  TO BE IMPLENTED
+
+   Author: Daniel 
+*/
+function endScreen() {
+
 }
 
 /*
@@ -153,19 +214,6 @@ function clickToStartGame() {
 */
 function moveObject(object) {
   object.y += object.speed;
-}
-
-/*
-  This function tracks the object and recycles (restarts position) once it falls below the canvas.
-
-   Author: Daniel
-*/
-function trackObject(object) {
-  if (object.y > canvas.height) {
-    object.x = Math.random() * (canvas.width - 20);
-    object.y = 0;
-    //objectStorage.splice(i, 1)
-  }
 }
 
 /*
@@ -211,21 +259,21 @@ function createRandomObject() {
       const objectImage = new Image();
       objectImage.src = "../../resources/image/gameAssets/nut.png"; //image held outside of pages/game/ path
 
-      createObject(objectImage, 55, 55, 2.5);
+      createObject(objectImage, 55, 55, 2.5, "nut", 200, 1);
     }
 
     if (spawnValue > 0.25 && spawnValue < stoneSpawnChance) {
       const objectImage = new Image();
       objectImage.src = "../../resources/image/gameAssets/stone.png";
 
-      createObject(objectImage, 35, 35, 3);
+      createObject(objectImage, 35, 35, 3, "stone", -500, 0);
     }
 
     if (spawnValue > stoneSpawnChance && spawnValue < 1) {
       const objectImage = new Image();
       objectImage.src = "../../resources/image/gameAssets/leaf.png";
 
-      createObject(objectImage, 75, 75, 2);
+      createObject(objectImage, 75, 75, 2, "leaf", 100, 0);
     }
   }
 }
@@ -237,7 +285,7 @@ function createRandomObject() {
 
    Author: Daniel
 */
-function createObject(objectImage, objectWidth, objectHeight, objectSpeed) {
+function createObject(objectImage, objectWidth, objectHeight, objectSpeed, objectType, objectScore, objectLife) {
   objectImage.onload = function () {
     const object = {
       x: Math.random() * (canvas.width - 20),
@@ -246,17 +294,78 @@ function createObject(objectImage, objectWidth, objectHeight, objectSpeed) {
       width: objectWidth,
       height: objectHeight,
       speed: objectSpeed,
+      type: objectType,
+      score: objectScore,
+      life: objectLife,
     };
 
     objectStorage.push(object);
   };
 }
 
-//function to cause gameCanvas to fit to browser window, not sured if it will be used
-function fullScreen() {
-  const canvas = document.getElementById("gameCanvas");
-  canvas.width = document.body.clientWidth;
-  canvas.height = document.body.clientHeight;
+/*
+    This funcations ends the game.
+
+    Author: Emmet
+    */
+
+function endGame() {
+  alert(`Game Over! Your final score is ${score}`);
+  resetGame();
+}
+
+/*
+    This function updates the display, which has the users score and number of lives.
+
+    Author: Emmet
+    */
+function updateScoreDisplay() {
+  scoreDisplay.textContent = `Score: ${score} Lives: ${lives}`;
+}
+
+/*
+  This function combines tracking misses
+
+   Author: Daniel
+*/
+function trackObject(object) {
+  trackObjectMiss(object);
+  trackObjectCatch(object);
+}
+
+/*
+  This function tracks the object and recycles (restarts position) once it falls below the canvas.
+
+  TO BE IMPLENTED:
+  score tracking
+  life tracking
+  do not recycle if object is a rock --> if you avoid rocks and continue recycling then
+  eventually the player will only get rocks on the screen
+*/
+function trackObjectMiss(object) {
+  if (object.y > canvas.height) {
+    object.x = Math.random() * (canvas.width - 20);
+    object.y = 0;
+    //objectStorage.splice(i, 1)
+  }
+}
+
+/*
+  It handles if an object has been caught, and splices it out of objectStorage when caught
+
+  TO BE IMPLENTED:
+  score tracking
+  life tracking
+*/
+function trackObjectCatch(object) {
+  if (object.x + object.width >= basket.x && object.x <= basket.x + basket.width && object.y + object.height >= basket.y && object.y <= basket.y + basket.height) {
+    console.log("caught");
+    const index = objectStorage.indexOf(object);
+    if (index !== -1) { //indexOf returns -1 if the object is not found, therefore has already been removed therefore do not remove it
+      objectStorage.splice(index, 1);
+    }
+    
+  }
 }
 
 /*
@@ -271,8 +380,11 @@ function gameLoop() {
   //Clear the entire gameCanvas of objects from previous sessions
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  //Draw the basket object onto the Canvas
+  drawBasket();
+
   //Allow the user to move the basket on the screen
-  moveBasket();
+  moveBasket(canvas.width, canvas.height);
 
   //Decrement through the objectStorage array
   for (let i = objectStorage.length - 1; i >= 0; i--) {
@@ -282,8 +394,12 @@ function gameLoop() {
     //Draw the object by its specifications onto the canvas
     drawObject(object);
 
+    //Track if the object has been caught by the basket
+    trackObjectCatch(object);
+
     //Track if the object has passed through the bottom of the canvas
     trackObject(object);
+    //trackObjectMiss(object);
 
     //Begin moving the object
     moveObject(object);
@@ -296,4 +412,8 @@ function gameLoop() {
   }
 }
 
+setCanvas(canvas);
+//These two lines fix the issues associated with calculated boundaries
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 loadTitleScreen();
