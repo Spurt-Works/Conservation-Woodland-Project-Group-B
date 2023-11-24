@@ -1,3 +1,11 @@
+/*html elements section*/
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Spartan', sans-serif;
+}
+
 #gameContainer {
   position: center;
 }
@@ -11,13 +19,11 @@
   height: 100%;
   position: center;
   margin-top: 10px;
-  margin-bottom: 40px;
+  margin-bottom: 10px;
 }
 
 #score {
-  position: absolute;
-  top: 330px;
-  right: 220px;
+  position: static;
   font-size: 18px;
   font-weight: bold;
 }
@@ -63,3 +69,4 @@
   padding-bottom: 0px;
   margin: 10px;
 }
+
