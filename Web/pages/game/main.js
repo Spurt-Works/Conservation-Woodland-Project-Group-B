@@ -1,11 +1,12 @@
-//   Purpose: Main driver for the game
+//   Purpose: Main driver with all functions and function uses to begin the game.
 //   Authors:
-//   Daniel Amirault  -
-//   Emmet Dixon -
+//   Daniel Amirault - 
+//   Emmet Dixon - 
 
 /*Description:
-
+    A simple game where you catch randomly spawning objects.
  */
+
 
 //Global variables//
 
@@ -13,7 +14,10 @@
 const lifeConstant = 3;
 
 //Array used to store and keep track of created objects
-const objectStorage = [];
+let objectStorage = [];
+
+//Variable to track animationFrame requests, controls when game loop starts and stops
+let animationFrame;
 
 //Integer number used to determine the amount of objects to spawn in a single iteration, before being caught
 //If you set to 4, and the user does not catch any of them, the same 4 objects will continue appearing
@@ -30,20 +34,15 @@ const spawnRate = 0.02;
 // Game variables
 let score = 0;
 let lives = lifeConstant;
-let squareCount = 0;
 
-//Select the gameCanvas, Canvas API
+//Variable to refer to the gameCanvas
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-//Get left offset of gameCanvas from browser screen
-//NO LONGER NECESSARY SINCE BROWSER WIDTH AND HEIGHT FIX --> TO BE TAKEN OUT
-const leftOffset = canvas.getBoundingClientRect().left;
-
-// Get a reference to the basket with default values
+// Get a reference to the basket with default values (top left corner of screen)
 let basket = {
-  width: 50,
-  height: 50,
+  width: 150,
+  height: 100,
   x: canvas.width / 2 - 25,
   y: canvas.height - 50,
 };
@@ -53,6 +52,7 @@ const scoreDisplay = document.getElementById("score");
 
 /*
   This function moves the basket when the user moves their mouse.
+  Prevents users from moving outside the canvas boundaries.
   Current width and height of canvas get passed in.
 
    Author: Emmet and Daniel
@@ -86,65 +86,76 @@ function moveBasket(canvasWidth, canvasHeight) {
 /*
   This function draws the basket onto the gameCanvas
 
-  TO BE IMPLENTED:
-  an actual image of a basket instead of just a beige box
+  Author: Daniel
 */
 function drawBasket() {
-  ctx.fillStyle = "beige";
-  ctx.fillRect(basket.x, basket.y, basket.width, basket.height);
+  const objectImage = new Image();
+  objectImage.src = "../../resources/image/gameAssets/basket.png";
+  ctx.drawImage(objectImage, basket.x, basket.y, basket.width, basket.height);
 }
 
 /*
-  This function fixes the bluriness of canvas elements due to upscaling to browser size.
+  This function fits the canvas width and height to the user's browser,
+  fixing issues associated with calculated boundaries of the gameCanvas
+  and bluriness in text and images.
 
-  NO LONGER NECESSARY. FOUND A BETTER FIX 
-
-  We did not write this, full credit goes this article: 
-  https://web.dev/articles/canvas-hidipi
-
-   Author: Paul Lewis, implented into main.js Code by Daniel
+  Author: Daniel, credit to https://stackoverflow.com/questions/4037212/html-canvas-full-screen
 */
-function setCanvas(canvas) {
-  // Get the device pixel ratio, falling back to 1.
-  var dpr = window.devicePixelRatio || 1;
-  // Get the size of the canvas in CSS pixels.
-  var rect = canvas.getBoundingClientRect();
-  // Give the canvas pixel dimensions of their CSS
-  // size * the device pixel ratio.
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
-  console.log(canvas.width);
-  console.log(canvas.height);
-  var ctx = canvas.getContext("2d");
-  // Scale all drawing operations by the dpr, so you
-  // don't have to worry about the difference.
-  ctx.scale(dpr, dpr);
-
-  return ctx;
+function setCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 }
 
 /*
   This function displays a title screen with text. On click
-  clear the screen and show the rule screen.
+  clear the screen and show the information screen.
 
   Author: Daniel
 */
 function loadTitleScreen() {
   ctx.font = "50px Jazz LET fantasy";
   ctx.fillStyle = "black";
-  ctx.fillText("Leaf catcher", 550, 300);
+  ctx.fillText("Leaf catcher", canvas.width - canvas.width / 2 - 200, canvas.height - canvas.height / 2 - 100);
   ctx.font = "30px Arial";
-  ctx.fillText("Game created by Daniel and Emmet", 450, 350);
-  loadObjectForScreen("../../resources/image/gameAssets/yellowBirch.png", 850, 130, 800, 800);
-  loadObjectForScreen("../../resources/image/gameAssets/yellowBirch.png", -250, 130, 800, 800);
+  ctx.fillText("Game created by Daniel and Emmet", canvas.width - canvas.width / 2 - 300, canvas.height - canvas.height / 2);
+  ctx.font = "30px Arial";
+  ctx.fillText("Click anywhere to continue", canvas.width - canvas.width / 2 - 240, canvas.height - canvas.height / 3);
+  loadObjectForScreen("../../resources/image/gameAssets/yellowBirch.png", canvas.width / 2 + 150, canvas.height - canvas.height / 1.5, 800, 800);
+  loadObjectForScreen("../../resources/image/gameAssets/yellowBirch.png", -canvas.width / 7, canvas.height - canvas.height / 1.5, 800, 800);
+  canvas.addEventListener("click", loadInformationScreen);
+}
+
+/*
+  This function displays an information screen with text and images. On click
+  clear the screen and show the rule screen.
+
+   Author: Daniel 
+*/
+function loadInformationScreen() {
+  canvas.removeEventListener("click", loadInformationScreen);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "black";
+  ctx.font = "20px Arial";
+
+  ctx.fillText("This is a yellow birch leaf:", canvas.width/2 - 100, 100);
+  ctx.fillText("Yellow birch trees use these leaves to catch sun rays to make food to grow big and strong!", canvas.width/2 - 350, 250);
+  ctx.fillText("When winter arrives, the tree takes a nap! It lets go of its leaves, and rests until it's warm and sunny again!", canvas.width/2 - 415, 290);
+  loadObjectForScreen("../../resources/image/gameAssets/leaf.png", canvas.width/2 - 25, 120, 100, 100);
+
+  ctx.fillText("This our friend the squirrel:", canvas.width/2 - 100, canvas.height/2 - 25);
+  ctx.fillText("He likes to collect leaves to stay warm during the winter, and nuts to eat when it gets colder!", canvas.width/2 - 350, canvas.height/2+150);
+  ctx.fillText("Help him and collect as many leaves and nuts! Be careful for those sneaky stones falling!", canvas.width/2 - 350, canvas.height/2+200)
+  loadObjectForScreen("../../resources/image/gameAssets/squirrel.png", canvas.width/2 - 75, canvas.height/2 - 15, 200, 150);
+
+  ctx.font = "30px Arial";
+  ctx.fillText("Click to continue!", canvas.width / 2 - 100, canvas.height - canvas.height / 8);
+
   canvas.addEventListener("click", loadRuleScreen);
 }
 
 /*
   This function displays a rule screen with text and images. On click
   clear the screen and begin the game loop.
-
-  TO BE IMPLENTED: fix position of text and images
 
    Author: Daniel 
 */
@@ -154,17 +165,24 @@ function loadRuleScreen() {
   ctx.fillStyle = "black";
   ctx.font = "20px Arial";
 
-  ctx.fillText("This is a yellow birch leaf:", 100, 100);
-  ctx.fillText("You should collect as many as possible!", 50, 250);
-  loadObjectForScreen("../../resources/image/gameAssets/leaf.png", 150, 120, 100, 100);
+  ctx.fillText("This is a yellow birch leaf:", 230, 100);
+  ctx.fillText("You should collect as many as possible!", 170, 250);
+  ctx.fillText("You lose lives when you miss them!", 190, 280);
+  loadObjectForScreen("../../resources/image/gameAssets/leaf.png", 320, 120, 100, 100);
 
-  ctx.fillText("This is a hazlenut:", 450, 100);
-  ctx.fillText("These restore lives!", 450, 250);
-  loadObjectForScreen("../../resources/image/gameAssets/nut.png", 500, 120, 100, 100);
+  ctx.fillText("This is a hazlenut:", 665, 100);
+  ctx.fillText("These restore lives!", 665, 250);
+  ctx.fillText("You gain life when you catch them!", 605, 280);
+  ctx.fillText("You lose lives when you miss them!", 605, 310);
+  loadObjectForScreen("../../resources/image/gameAssets/nut.png", 715, 120, 100, 100);
 
-  ctx.fillText("This is a stone:", 820, 100);
-  ctx.fillText("You should avoid these! They remove lives!", 700, 250);
-  loadObjectForScreen("../../resources/image/gameAssets/stone.png", 850, 130, 70, 70);
+  ctx.fillText("This is a stone:", 1100, 100);
+  ctx.fillText("You should not catch these!", 1050, 250);
+  ctx.fillText("You lose lives and score when you catch them!", 1000, 280)
+  loadObjectForScreen("../../resources/image/gameAssets/stone.png", 1150, 130, 70, 70);
+
+  ctx.font = "30px Arial";
+  ctx.fillText("Click anywhere to begin the game!", canvas.width - canvas.width / 2 - 240, canvas.height - canvas.height / 3);
 
   canvas.addEventListener("click", clickToStartGame);
 }
@@ -205,11 +223,44 @@ function clickToStartGame() {
 }
 
 /*
-  TO BE IMPLENTED
+  This function displays an end screen with user's score. On click
+  clear the screen and restart the game loop.
 
-   Author:  
+   Author: Daniel  
 */
-function endScreen() {}
+function endScreen() {
+  cancelAnimationFrame(animationFrame);
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "black";
+  ctx.font = "40px Arial";
+
+  ctx.fillText("Game over!", 100, canvas.height/2 - 200);
+  ctx.fillText("You scored: " + score + " points!", 100, 250);
+
+  ctx.fillText("You helped the squirrel!", 700, 250);
+  loadObjectForScreen("../../resources/image/gameAssets/squirrelFinalScreen.png", canvas.width/2 + 250, canvas.height / 2, 400, 400);
+
+
+  ctx.font = "30px Arial";
+  ctx.fillText("Click anywhere to restart the game!", canvas.width - canvas.width / 2 - 240, canvas.height - canvas.height / 3);
+
+  restartGame();
+}
+
+/*
+  Reset the global variables for a new gameLoop,
+  update the score display and on click restart the game.
+
+   Author: Emmet and Daniel  
+*/
+function restartGame() {
+  score = 0;
+  lives = lifeConstant;
+  objectStorage = [];
+  updateScoreDisplay();
+  canvas.addEventListener("click", clickToStartGame);
+}
 
 /*
   This function moves the object by adding the speed in pixels to the objects y position in pixels
@@ -231,22 +282,12 @@ function drawObject(object) {
 }
 
 /*
-  This function overclears the object path to remove it.
-  No longer necessary since the objects are images and not rectangles.
-
-   Author: Daniel
-*/
-function clearObject() {
-  ctx.clearRect(object.x - 0.5, object.y, object.width * 2, object.height);
-}
-
-/*
-    Create a random object according to random spawnValue and spawnChances controlled by the spawnAmount
+  Create a random object according to random spawnValue and spawnChances controlled by the spawnAmount
   
-    The if condition with "spawnAmount" controls amount of object being pushed into the objectStorage array
-    If the spawnAmount = 3, the maximum amount of objects spawning in a single iteration is 3
+  The if condition with "spawnAmount" controls amount of object being pushed into the objectStorage array
+  If the spawnAmount = 3, the maximum amount of objects spawning in a single iteration is 3
 
-    spawnValue is a random number between 0-1, spawnRates control the amount of chance for a type of Object to spawn
+  spawnValue is a random number between 0-1, spawnRates control the amount of chance for a type of Object to spawn
       nutSpawnChance: 0 -> 0.25 therefore 25% chance
       stoneSpawnChance: 0.25 -> 0.35 therefore 10 % chance
       (implied leafSpawnChance): 0.35 -> 1 therefore 65 % chance
@@ -260,25 +301,28 @@ function createRandomObject() {
   if (objectStorage.length < spawnAmount) {
     let spawnValue = Math.random(); //values between 0-1
 
+    //chances of spawning a nut
     if (spawnValue > 0 && spawnValue < nutSpawnChance) {
       const objectImage = new Image();
       objectImage.src = "../../resources/image/gameAssets/nut.png"; //image held outside of pages/game/ path
 
-      createObject(objectImage, 55, 55, 2.5, "nut", 200, 1);
+      createObject(objectImage, 55, 55, 2.5, "nut", 200, 1, 1);
     }
 
+    //chances of spawning a stone
     if (spawnValue > 0.25 && spawnValue < stoneSpawnChance) {
       const objectImage = new Image();
       objectImage.src = "../../resources/image/gameAssets/stone.png";
 
-      createObject(objectImage, 35, 35, 3, "stone", -500, 0);
+      createObject(objectImage, 35, 35, 3, "stone", -500, 0, -1);
     }
 
+    //chances of spawning a leaf
     if (spawnValue > stoneSpawnChance && spawnValue < 1) {
       const objectImage = new Image();
       objectImage.src = "../../resources/image/gameAssets/leaf.png";
 
-      createObject(objectImage, 75, 75, 2, "leaf", 100, 0);
+      createObject(objectImage, 75, 75, 2, "leaf", 100, 1, 0);
     }
   }
 }
@@ -288,9 +332,9 @@ function createRandomObject() {
   the asynchronous operation of loading the object's image. Need onload to prevent using image 
   before its been loaded.
 
-   Author: Daniel
+  Author: Daniel
 */
-function createObject(objectImage, objectWidth, objectHeight, objectSpeed, objectType, objectScore, objectLife) {
+function createObject(objectImage, objectWidth, objectHeight, objectSpeed, objectType, objectScore, objectLifeMiss, objectLifeCatch) {
   objectImage.onload = function () {
     //onload, create the object
     const object = {
@@ -302,7 +346,8 @@ function createObject(objectImage, objectWidth, objectHeight, objectSpeed, objec
       speed: objectSpeed, //specifies the speed in pixels that object travels at
       type: objectType, //specifies the object type as a string
       score: objectScore, //specifies the associated score with catching the object
-      life: objectLife, //specifies the lives associated with catching the object (what about lives lost?)
+      lifeWhenMissed: objectLifeMiss, //specifies the lives associated with missing the object
+      lifeWhenCaught: objectLifeCatch, //specifies the lives associated with catching the object
     };
 
     objectStorage.push(object);
@@ -310,10 +355,10 @@ function createObject(objectImage, objectWidth, objectHeight, objectSpeed, objec
 }
 
 /*
-    This funcations ends the game.
+  This funcations ends the game.
 
-    Author: Emmet
-    */
+  Author: Emmet
+*/
 
 function endGame() {
   alert(`Game Over! Your final score is ${score}`);
@@ -324,7 +369,7 @@ function endGame() {
     This function updates the display, which has the users score and number of lives.
 
     Author: Emmet
-    */
+*/
 function updateScoreDisplay() {
   scoreDisplay.textContent = `Score: ${score} Lives: ${lives}`;
 }
@@ -342,16 +387,16 @@ function trackObject(object) {
 /*
   This function tracks the object and recycles (restarts position) once it falls below the canvas.
 
-  TO BE IMPLENTED:
-  score tracking
-  life tracking
+  Author: Emmet and Daniel
 */
 function trackObjectMiss(object) {
   if (object.y > canvas.height) {
     //if the object is greater than the height of the canvas (has passed through the bottom)
+    //Lose however many lives are associated with object type
+    lives -= object.lifeWhenMissed;
+    updateScoreDisplay();
     if (object.type == "stone") {
       //if the object is a stone do not recycle it, splice it out of the objectStorage array
-      console.log("stone missed");
       const index = objectStorage.indexOf(object);
       objectStorage.splice(index, 1);
     } else {
@@ -359,18 +404,23 @@ function trackObjectMiss(object) {
       object.y = 0; //place it back at the top
     }
   }
+  if (lives == 0) {
+    endScreen();
+  }
 }
 
 /*
   Function that handles if an object has been caught, and splices it out of objectStorage when caught
 
-  TO BE IMPLENTED:
-  score tracking
-  life tracking
+  Author: Daniel and Emmet
 */
 function trackObjectCatch(object) {
   if (object.x + object.width >= basket.x && object.x <= basket.x + basket.width && object.y + object.height >= basket.y && object.y <= basket.y + basket.height) {
     const index = objectStorage.indexOf(object); //search objectStorage and return index of object that has been registered as caught
+    //Gain however many score points are associated with object type
+    score += object.score;
+    lives += object.lifeWhenCaught;
+    updateScoreDisplay();
     if (index !== -1) {
       //indexOf returns -1 if the object is not found, therefore has already been removed therefore do not remove it
       objectStorage.splice(index, 1); //splice removes the object at the given index, and 1 represents the amount of splices that occur (1)
@@ -385,7 +435,7 @@ function trackObjectCatch(object) {
 */
 function gameLoop() {
   //Update animation for next frame
-  requestAnimationFrame(gameLoop);
+  animationFrame = requestAnimationFrame(gameLoop);
 
   //Clear the entire gameCanvas of objects from previous sessions
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -401,18 +451,16 @@ function gameLoop() {
     //Copy the object from the objectStorage array to the object variable
     const object = objectStorage[i];
 
-    //Draw the object by its specifications onto the canvas
-    drawObject(object);
+    //Draw the object by its specifications onto the canvas, do not attempt if objectStorage is empty
+    if (objectStorage.length != 0) {
+      drawObject(object);
 
-    //Track if the object has been caught by the basket
-    trackObjectCatch(object);
+      //Track if the object has passed through the bottom of the canvas
+      trackObject(object);
 
-    //Track if the object has passed through the bottom of the canvas
-    trackObject(object);
-    //trackObjectMiss(object);
-
-    //Begin moving the object
-    moveObject(object);
+      //Begin moving the object
+      moveObject(object);
+    }
   }
 
   //Math.random() generates numbers between 0-1, therefore spawnRate determines the chance that a new object is created
@@ -422,9 +470,7 @@ function gameLoop() {
   }
 }
 
-setCanvas(canvas);
-//These two lines fix the issues associated with calculated boundaries
-//Planning to make it a function in future or add into setCanvas function --> seems to work
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+//Sets the canvas based of user's browser
+setCanvas();
+//Load title screen and allow user to begin game
 loadTitleScreen();
